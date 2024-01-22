@@ -1,0 +1,66 @@
+{
+  "name": "better-fd-slicer",
+  "version": "1.0.0",
+  "description": "safely create multiple ReadStream or WriteStream objects from the same file descriptor",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.mjs",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "vitest --coverage",
+    "build": "tsup"
+  },
+  "author": "Andrew Kelley <superjoe30@gmail.com>",
+  "maintainers": [
+    {
+      "name": "Igor Savin",
+      "email": "kibertoad@gmail.com"
+    },
+    {
+      "name": "Vinícius Lourenço",
+      "email": "contact@viniciusl.com.br"
+    }
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "20.11.5",
+    "@vitest/coverage-v8": "1.2.2",
+    "stream-equal": "2.0.1",
+    "streamsink": "1.2.0",
+    "tsup": "8.0.1",
+    "typescript": "5.3.3",
+    "vite": "5.0.12",
+    "vitest": "1.2.2"
+  },
+  "dependencies": {
+    "pend": "1.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kibertoad/better-fd-slicer"
+  },
+  "bugs": {
+    "url": "https://github.com/kibertoad/better-fd-slicer/issues"
+  },
+  "keywords": [
+    "createReadStream",
+    "createWriteStream"
+  ]
+}
