@@ -1,9 +1,9 @@
+import { EventEmitter } from 'events';
 import fs from 'node:fs';
-import type {ReadableOptions, WritableOptions} from 'node:stream';
-import {PassThrough, Readable, Writable} from 'node:stream';
+import type { ReadableOptions, WritableOptions } from 'node:stream';
+import { PassThrough, Readable, Writable } from 'node:stream';
+import type { TransformOptions } from 'stream';
 import Pend from 'pend';
-import {EventEmitter} from 'events';
-import type {TransformOptions} from 'stream';
 
 export interface FdSlicerOptions {
   autoClose?: boolean;
@@ -15,9 +15,7 @@ export class FdSlicer extends EventEmitter {
   refCount: number;
   autoClose: boolean;
 
-  constructor(
-    fd: number, options?: FdSlicerOptions,
-  ) {
+  constructor(fd: number, options?: FdSlicerOptions) {
     super();
 
     options = options || {};
@@ -28,21 +26,47 @@ export class FdSlicer extends EventEmitter {
     this.autoClose = !!options.autoClose;
   }
 
-  public read(buffer: Buffer, offset: number, length: number, position: number, callback: (error: Error | null, bytesRead: number, buffer: Buffer) => void) {
-    this.pend.go((cb) => {
-      fs.read(this.fd, buffer, offset, length, position, (err, bytesRead, buffer) => {
-        cb();
-        callback(err, bytesRead, buffer);
-      });
+  public read(
+    buffer: Buffer,
+    offset: number,
+    length: number,
+    position: number,
+    callback: (error: Error | null, bytesRead: number, buffer: Buffer) => void,
+  ) {
+    this.pend.go(cb => {
+      fs.read(
+        this.fd,
+        buffer,
+        offset,
+        length,
+        position,
+        (err, bytesRead, buffer) => {
+          cb();
+          callback(err, bytesRead, buffer);
+        },
+      );
     });
   }
 
-  public write(buffer: Buffer, offset: number, length: number, position: number, callback: (error: Error | null, written: number, buffer: Buffer) => void) {
-    this.pend.go((cb) => {
-      fs.write(this.fd, buffer, offset, length, position, (err, written, buffer) => {
-        cb();
-        callback(err, written, buffer);
-      });
+  public write(
+    buffer: Buffer,
+    offset: number,
+    length: number,
+    position: number,
+    callback: (error: Error | null, written: number, buffer: Buffer) => void,
+  ) {
+    this.pend.go(cb => {
+      fs.write(
+        this.fd,
+        buffer,
+        offset,
+        length,
+        position,
+        (err, written, buffer) => {
+          cb();
+          callback(err, written, buffer);
+        },
+      );
     });
   }
 
@@ -65,7 +89,7 @@ export class FdSlicer extends EventEmitter {
     if (this.refCount < 0) throw new Error('invalid unref');
 
     if (this.autoClose) {
-      fs.close(this.fd, (err) => {
+      fs.close(this.fd, err => {
         if (err) {
           this.emit('error', err);
         } else {
@@ -87,9 +111,7 @@ export class ReadStream extends Readable {
   endOffset?: number;
   pos: number;
 
-  constructor(
-    context: FdSlicer, options?: ReadStreamOptions,
-  ) {
+  constructor(context: FdSlicer, options?: ReadStreamOptions) {
     options = options || {};
     options.autoDestroy = true;
 
@@ -118,27 +140,37 @@ export class ReadStream extends Readable {
       return;
     }
 
-    this.context.pend.go((cb) => {
+    this.context.pend.go(cb => {
       if (this.destroyed) return cb();
 
       const buffer = Buffer.alloc(toRead);
 
-      fs.read(this.context.fd, buffer, 0, toRead, this.pos, (err, bytesRead) => {
-        if (err) {
-          this.destroy(err);
-        } else if (bytesRead === 0) {
-          this.push(null);
-        } else {
-          this.pos += bytesRead;
-          this.push(buffer.slice(0, bytesRead));
-        }
+      fs.read(
+        this.context.fd,
+        buffer,
+        0,
+        toRead,
+        this.pos,
+        (err, bytesRead) => {
+          if (err) {
+            this.destroy(err);
+          } else if (bytesRead === 0) {
+            this.push(null);
+          } else {
+            this.pos += bytesRead;
+            this.push(buffer.slice(0, bytesRead));
+          }
 
-        cb();
-      });
+          cb();
+        },
+      );
     });
   }
 
-  public override _destroy(err: Error | null, callback: (error: Error | null) => void): void {
+  public override _destroy(
+    err: Error | null,
+    callback: (error: Error | null) => void,
+  ): void {
     this.context.unref();
 
     callback(err);
@@ -167,9 +199,7 @@ export class WriteStream extends Writable {
   bytesWritten: number;
   pos: number;
 
-  constructor(
-    context: FdSlicer, options?: WriteStreamOptions,
-  ) {
+  constructor(context: FdSlicer, options?: WriteStreamOptions) {
     options = options || {};
     options.autoDestroy = true;
     super(options);
@@ -178,12 +208,16 @@ export class WriteStream extends Writable {
     this.context.ref();
 
     this.start = options.start || 0;
-    this.endOffset = (options.end == null) ? Infinity : +options.end;
+    this.endOffset = options.end == null ? Infinity : +options.end;
     this.bytesWritten = 0;
     this.pos = this.start;
   }
 
-  public override _write(buffer: Buffer, _encoding: BufferEncoding, callback: (error?: Error) => void) {
+  public override _write(
+    buffer: Buffer,
+    _encoding: BufferEncoding,
+    callback: (error?: Error) => void,
+  ) {
     if (this.pos + buffer.length > this.endOffset) {
       const err = new ETOOBigError();
 
@@ -192,25 +226,35 @@ export class WriteStream extends Writable {
       return;
     }
 
-    this.context.pend.go((cb) => {
+    this.context.pend.go(cb => {
       if (this.destroyed) return cb();
-      fs.write(this.context.fd, buffer, 0, buffer.length, this.pos, (err, bytes) => {
-        if (err) {
-          cb();
-          callback(err);
-        } else {
-          this.bytesWritten += bytes;
-          this.pos += bytes;
-          this.emit('progress');
+      fs.write(
+        this.context.fd,
+        buffer,
+        0,
+        buffer.length,
+        this.pos,
+        (err, bytes) => {
+          if (err) {
+            cb();
+            callback(err);
+          } else {
+            this.bytesWritten += bytes;
+            this.pos += bytes;
+            this.emit('progress');
 
-          cb();
-          callback();
-        }
-      });
+            cb();
+            callback();
+          }
+        },
+      );
     });
   }
 
-  public override _destroy(err: Error | null, callback: (error: Error | null) => void) {
+  public override _destroy(
+    err: Error | null,
+    callback: (error: Error | null) => void,
+  ) {
     this.context.unref();
 
     callback(err);
@@ -279,7 +323,10 @@ export class BufferSlicerWriteStream extends Writable {
   bytesWritten: number;
   pos: number;
 
-  constructor(bufferSlicer: BufferSlicer, options?: BufferSlicerWriteStreamOptions) {
+  constructor(
+    bufferSlicer: BufferSlicer,
+    options?: BufferSlicerWriteStreamOptions,
+  ) {
     options = options || {};
     options.autoDestroy = true;
 
@@ -287,12 +334,17 @@ export class BufferSlicerWriteStream extends Writable {
 
     this.bufferSlicer = bufferSlicer;
     this.start = options.start || 0;
-    this.endOffset = (options.end == null) ? this.bufferSlicer.buffer.length : +options.end;
+    this.endOffset =
+      options.end == null ? this.bufferSlicer.buffer.length : +options.end;
     this.bytesWritten = 0;
     this.pos = this.start;
   }
 
-  public override _write(buffer: Buffer, _encoding: BufferEncoding, callback: (error?: Error) => void) {
+  public override _write(
+    buffer: Buffer,
+    _encoding: BufferEncoding,
+    callback: (error?: Error) => void,
+  ) {
     const end = this.pos + buffer.length;
     if (end > this.endOffset) {
       const err = new ETOOBigError();
@@ -324,10 +376,16 @@ export class BufferSlicer extends EventEmitter {
     this.maxChunkSize = options?.maxChunkSize || Number.MAX_SAFE_INTEGER;
   }
 
-  public read(buffer: Buffer, offset: number, length: number, position: number, callback: (error: Error | null, written: number) => void) {
+  public read(
+    buffer: Buffer,
+    offset: number,
+    length: number,
+    position: number,
+    callback: (error: Error | null, written: number) => void,
+  ) {
     const end = position + length;
     const delta = end - this.buffer.length;
-    const written = (delta > 0) ? delta : length;
+    const written = delta > 0 ? delta : length;
 
     this.buffer.copy(buffer, offset, position, end);
 
@@ -336,7 +394,13 @@ export class BufferSlicer extends EventEmitter {
     });
   }
 
-  public write(buffer: Buffer, offset: number, length: number, position: number, callback: (error: Error | null, length: number, buffer: Buffer) => void) {
+  public write(
+    buffer: Buffer,
+    offset: number,
+    length: number,
+    position: number,
+    callback: (error: Error | null, length: number, buffer: Buffer) => void,
+  ) {
     buffer.copy(this.buffer, position, offset, offset + length);
 
     setImmediate(() => {
@@ -344,11 +408,15 @@ export class BufferSlicer extends EventEmitter {
     });
   }
 
-  public createReadStream(options?: BufferSlicerCreateReadOptions): BufferSlicerReadStream {
+  public createReadStream(
+    options?: BufferSlicerCreateReadOptions,
+  ): BufferSlicerReadStream {
     return new BufferSlicerReadStream(this, options);
   }
 
-  public createWriteStream(options?: BufferSlicerWriteStreamOptions): BufferSlicerWriteStream {
+  public createWriteStream(
+    options?: BufferSlicerWriteStreamOptions,
+  ): BufferSlicerWriteStream {
     return new BufferSlicerWriteStream(this, options);
   }
 
@@ -365,7 +433,10 @@ export class BufferSlicer extends EventEmitter {
   }
 }
 
-export function createFromBuffer(buffer: Buffer, options?: BufferSliceOptions): BufferSlicer {
+export function createFromBuffer(
+  buffer: Buffer,
+  options?: BufferSliceOptions,
+): BufferSlicer {
   return new BufferSlicer(buffer, options);
 }
 
