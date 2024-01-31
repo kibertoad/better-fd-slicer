@@ -1,12 +1,12 @@
-import {createFromBuffer, createFromFd, ETOOBigError} from '../';
-import fs from 'fs';
-import crypto from 'crypto';
-import path from 'path';
-import streamEqual from 'stream-equal';
 import assert from 'assert';
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import Pend from 'pend';
+import streamEqual from 'stream-equal';
 import StreamSink from 'streamsink';
-import {beforeAll, beforeEach, describe, it} from 'vitest';
+import { beforeAll, beforeEach, describe, it } from 'vitest';
+import { ETOOBigError, createFromBuffer, createFromFd } from '../';
 
 const testBlobFile = path.join(__dirname, 'test-blob.bin');
 const testBlobFileSize = 20 * 1024 * 1024;
@@ -27,22 +27,20 @@ describe.sequential('FdSlicer', () => {
       try {
         fs.unlinkSync(testBlobFile);
         fs.unlinkSync(testOutBlobFile);
-      } catch (err) {
-      }
+      } catch (err) {}
     };
   });
 
-  beforeEach(function () {
+  beforeEach(() => {
     try {
       fs.unlinkSync(testOutBlobFile);
-    } catch (err) {
-    }
+    } catch (err) {}
   });
 
   it('reads a 20MB file (autoClose on)', async () => {
     const fd = fs.openSync(testBlobFile, 'r');
 
-    const slicer = createFromFd(fd, {autoClose: true});
+    const slicer = createFromFd(fd, { autoClose: true });
     const actualStream = slicer.createReadStream();
     const expectedStream = fs.createReadStream(testBlobFile);
 
@@ -54,11 +52,13 @@ describe.sequential('FdSlicer', () => {
       });
 
       pend.go(cb => {
-        streamEqual(expectedStream, actualStream).then((equal) => {
-          assert.ok(equal);
+        streamEqual(expectedStream, actualStream)
+          .then(equal => {
+            assert.ok(equal);
 
-          cb();
-        }).catch(reject);
+            cb();
+          })
+          .catch(reject);
       });
 
       pend.wait(resolve);
@@ -69,53 +69,73 @@ describe.sequential('FdSlicer', () => {
     const fd = fs.openSync(testBlobFile, 'r');
 
     const slicer = createFromFd(fd);
-    const actualPart1 = slicer.createReadStream({start: testBlobFileSize * 0 / 4, end: testBlobFileSize * 1 / 4});
-    const actualPart2 = slicer.createReadStream({start: testBlobFileSize * 1 / 4, end: testBlobFileSize * 2 / 4});
-    const actualPart3 = slicer.createReadStream({start: testBlobFileSize * 2 / 4, end: testBlobFileSize * 3 / 4});
-    const actualPart4 = slicer.createReadStream({start: testBlobFileSize * 3 / 4, end: testBlobFileSize * 4 / 4});
+    const actualPart1 = slicer.createReadStream({
+      start: (testBlobFileSize * 0) / 4,
+      end: (testBlobFileSize * 1) / 4,
+    });
+    const actualPart2 = slicer.createReadStream({
+      start: (testBlobFileSize * 1) / 4,
+      end: (testBlobFileSize * 2) / 4,
+    });
+    const actualPart3 = slicer.createReadStream({
+      start: (testBlobFileSize * 2) / 4,
+      end: (testBlobFileSize * 3) / 4,
+    });
+    const actualPart4 = slicer.createReadStream({
+      start: (testBlobFileSize * 3) / 4,
+      end: (testBlobFileSize * 4) / 4,
+    });
 
     const expectedPart1 = slicer.createReadStream({
-      start: testBlobFileSize * 0 / 4,
-      end: testBlobFileSize * 1 / 4,
+      start: (testBlobFileSize * 0) / 4,
+      end: (testBlobFileSize * 1) / 4,
     });
     const expectedPart2 = slicer.createReadStream({
-      start: testBlobFileSize * 1 / 4,
-      end: testBlobFileSize * 2 / 4,
+      start: (testBlobFileSize * 1) / 4,
+      end: (testBlobFileSize * 2) / 4,
     });
     const expectedPart3 = slicer.createReadStream({
-      start: testBlobFileSize * 2 / 4,
-      end: testBlobFileSize * 3 / 4,
+      start: (testBlobFileSize * 2) / 4,
+      end: (testBlobFileSize * 3) / 4,
     });
     const expectedPart4 = slicer.createReadStream({
-      start: testBlobFileSize * 3 / 4,
-      end: testBlobFileSize * 4 / 4,
+      start: (testBlobFileSize * 3) / 4,
+      end: (testBlobFileSize * 4) / 4,
     });
 
     await new Promise<void>((resolve, reject) => {
       const pend = new Pend();
       pend.go(cb => {
-        streamEqual(expectedPart1, actualPart1).then((equal) => {
-          assert.ok(equal);
-          cb();
-        }).catch(reject);
+        streamEqual(expectedPart1, actualPart1)
+          .then(equal => {
+            assert.ok(equal);
+            cb();
+          })
+          .catch(reject);
       });
       pend.go(cb => {
-        streamEqual(expectedPart2, actualPart2).then((equal) => {
-          assert.ok(equal);
-          cb();
-        }).catch(reject);
+        streamEqual(expectedPart2, actualPart2)
+          .then(equal => {
+            assert.ok(equal);
+            cb();
+          })
+          .catch(reject);
       });
       pend.go(cb => {
-        streamEqual(expectedPart3, actualPart3).then((equal) => {
-          assert.ok(equal);
-          cb();
-        }).catch(reject);
+        streamEqual(expectedPart3, actualPart3)
+          .then(equal => {
+            assert.ok(equal);
+            cb();
+          })
+          .catch(reject);
       });
       pend.go(cb => {
-        streamEqual(expectedPart4, actualPart4).then((equal) => {
-          assert.ok(equal);
-          cb();
-        }).catch(reject);
+        streamEqual(expectedPart4, actualPart4)
+          .then(equal => {
+            assert.ok(equal);
+            cb();
+          })
+          .catch(reject);
       });
       pend.wait(err => {
         if (err) return reject(err);
@@ -132,24 +152,26 @@ describe.sequential('FdSlicer', () => {
 
   it('writes a 20MB file (autoClose on)', async () => {
     const fd = fs.openSync(testOutBlobFile, 'w');
-    const slicer = createFromFd(fd, {autoClose: true});
+    const slicer = createFromFd(fd, { autoClose: true });
     const actualStream = slicer.createWriteStream();
     const inStream = fs.createReadStream(testBlobFile);
 
     await new Promise<void>((resolve, reject) => {
-      slicer.on('close', function () {
+      slicer.on('close', () => {
         const expected = fs.createReadStream(testBlobFile);
         const actual = fs.createReadStream(testOutBlobFile);
 
-        streamEqual(expected, actual).then((equal) => {
-          try {
-            assert.ok(equal);
+        streamEqual(expected, actual)
+          .then(equal => {
+            try {
+              assert.ok(equal);
 
-            resolve();
-          } catch (e) {
-            reject(e);
-          }
-        }).catch(reject);
+              resolve();
+            } catch (e) {
+              reject(e);
+            }
+          })
+          .catch(reject);
       });
       inStream.pipe(actualStream);
     });
@@ -159,25 +181,33 @@ describe.sequential('FdSlicer', () => {
     const fd = fs.openSync(testOutBlobFile, 'w');
 
     const slicer = createFromFd(fd);
-    const actualPart1 = slicer.createWriteStream({start: testBlobFileSize * 0 / 4});
-    const actualPart2 = slicer.createWriteStream({start: testBlobFileSize * 1 / 4});
-    const actualPart3 = slicer.createWriteStream({start: testBlobFileSize * 2 / 4});
-    const actualPart4 = slicer.createWriteStream({start: testBlobFileSize * 3 / 4});
+    const actualPart1 = slicer.createWriteStream({
+      start: (testBlobFileSize * 0) / 4,
+    });
+    const actualPart2 = slicer.createWriteStream({
+      start: (testBlobFileSize * 1) / 4,
+    });
+    const actualPart3 = slicer.createWriteStream({
+      start: (testBlobFileSize * 2) / 4,
+    });
+    const actualPart4 = slicer.createWriteStream({
+      start: (testBlobFileSize * 3) / 4,
+    });
     const in1 = fs.createReadStream(testBlobFile, {
-      start: testBlobFileSize * 0 / 4,
-      end: testBlobFileSize * 1 / 4,
+      start: (testBlobFileSize * 0) / 4,
+      end: (testBlobFileSize * 1) / 4,
     });
     const in2 = fs.createReadStream(testBlobFile, {
-      start: testBlobFileSize * 1 / 4,
-      end: testBlobFileSize * 2 / 4,
+      start: (testBlobFileSize * 1) / 4,
+      end: (testBlobFileSize * 2) / 4,
     });
     const in3 = fs.createReadStream(testBlobFile, {
-      start: testBlobFileSize * 2 / 4,
-      end: testBlobFileSize * 3 / 4,
+      start: (testBlobFileSize * 2) / 4,
+      end: (testBlobFileSize * 3) / 4,
     });
     const in4 = fs.createReadStream(testBlobFile, {
-      start: testBlobFileSize * 3 / 4,
-      end: testBlobFileSize * 4 / 4,
+      start: (testBlobFileSize * 3) / 4,
+      end: (testBlobFileSize * 4) / 4,
     });
 
     const pend = new Pend();
@@ -210,14 +240,16 @@ describe.sequential('FdSlicer', () => {
         const expected = fs.createReadStream(testBlobFile);
         const actual = fs.createReadStream(testOutBlobFile);
 
-        streamEqual(expected, actual).then((equal) => {
-          try {
-            assert.ok(equal);
-            resolve();
-          } catch (e) {
-            reject(e);
-          }
-        }).catch(reject);
+        streamEqual(expected, actual)
+          .then(equal => {
+            try {
+              assert.ok(equal);
+              resolve();
+            } catch (e) {
+              reject(e);
+            }
+          })
+          .catch(reject);
       });
     });
   });
@@ -225,9 +257,9 @@ describe.sequential('FdSlicer', () => {
   it('throws on invalid ref', () => {
     const fd = fs.openSync(testOutBlobFile, 'w');
 
-    const slicer = createFromFd(fd, {autoClose: true});
+    const slicer = createFromFd(fd, { autoClose: true });
 
-    assert.throws(function () {
+    assert.throws(() => {
       slicer.unref();
     }, /invalid unref/);
 
@@ -237,8 +269,8 @@ describe.sequential('FdSlicer', () => {
   it('write stream emits error when max size exceeded', async () => {
     const fd = fs.openSync(testOutBlobFile, 'w');
 
-    const slicer = createFromFd(fd, {autoClose: true});
-    const ws = slicer.createWriteStream({start: 0, end: 1000});
+    const slicer = createFromFd(fd, { autoClose: true });
+    const ws = slicer.createWriteStream({ start: 0, end: 1000 });
 
     await new Promise<void>((resolve, reject) => {
       ws.on('error', (err: ETOOBigError) => {
@@ -256,10 +288,10 @@ describe.sequential('FdSlicer', () => {
   it('write stream does not emit error when max size not exceeded', async () => {
     const fd = fs.openSync(testOutBlobFile, 'w');
 
-    const slicer = createFromFd(fd, {autoClose: true});
-    const ws = slicer.createWriteStream({end: 1000});
+    const slicer = createFromFd(fd, { autoClose: true });
+    const ws = slicer.createWriteStream({ end: 1000 });
 
-    await new Promise<void>((resolve) => {
+    await new Promise<void>(resolve => {
       slicer.on('close', resolve);
       ws.end(Buffer.alloc(1000));
     });
@@ -268,8 +300,8 @@ describe.sequential('FdSlicer', () => {
   it('write stream start and end work together', async () => {
     const fd = fs.openSync(testOutBlobFile, 'w');
 
-    const slicer = createFromFd(fd, {autoClose: true});
-    const ws = slicer.createWriteStream({start: 1, end: 1000});
+    const slicer = createFromFd(fd, { autoClose: true });
+    const ws = slicer.createWriteStream({ start: 1, end: 1000 });
 
     await new Promise<void>((resolve, reject) => {
       ws.on('error', (err: ETOOBigError) => {
@@ -287,13 +319,13 @@ describe.sequential('FdSlicer', () => {
   it('write stream emits progress events', async () => {
     const fd = fs.openSync(testOutBlobFile, 'w');
 
-    const slicer = createFromFd(fd, {autoClose: true});
+    const slicer = createFromFd(fd, { autoClose: true });
     const ws = slicer.createWriteStream();
 
     let progressEventCount = 0;
     let prevBytesWritten = 0;
 
-    ws.on('progress', function () {
+    ws.on('progress', () => {
       progressEventCount += 1;
       assert.ok(ws.bytesWritten > prevBytesWritten);
       prevBytesWritten = ws.bytesWritten;
@@ -320,8 +352,8 @@ describe.sequential('FdSlicer', () => {
   it('write stream unrefs when destroyed', async () => {
     const fd = fs.openSync(testOutBlobFile, 'w');
 
-    await new Promise<void>((resolve) => {
-      const slicer = createFromFd(fd, {autoClose: true});
+    await new Promise<void>(resolve => {
+      const slicer = createFromFd(fd, { autoClose: true });
       const ws = slicer.createWriteStream();
 
       slicer.on('close', resolve);
@@ -333,10 +365,10 @@ describe.sequential('FdSlicer', () => {
   it('read stream unrefs when destroyed', async () => {
     const fd = fs.openSync(testBlobFile, 'r');
 
-    const slicer = createFromFd(fd, {autoClose: true});
+    const slicer = createFromFd(fd, { autoClose: true });
     const rs = slicer.createReadStream();
 
-    await new Promise<void>((resolve) => {
+    await new Promise<void>(resolve => {
       slicer.on('close', resolve);
       rs.destroy();
     });
@@ -372,7 +404,7 @@ describe.sequential('FdSlicer', () => {
     const slicer = createFromFd(fd);
 
     await new Promise<void>((resolve, reject) => {
-      slicer.write(Buffer.from('blah\n'), 0, 5, 0, (e) => {
+      slicer.write(Buffer.from('blah\n'), 0, 5, 0, e => {
         if (e) return reject(e);
 
         fs.closeSync(fd);
@@ -380,7 +412,7 @@ describe.sequential('FdSlicer', () => {
       });
     });
   });
-})
+});
 
 describe.sequential('BufferSlicer', () => {
   it('invalid ref', () => {
@@ -389,18 +421,20 @@ describe.sequential('BufferSlicer', () => {
     slicer.ref();
     slicer.unref();
 
-    assert.throws(function () {
+    assert.throws(() => {
       slicer.unref();
     }, /invalid unref/);
   });
 
   it('read and write', async () => {
-    const buf = Buffer.from('through the tangled thread the needle finds its way');
+    const buf = Buffer.from(
+      'through the tangled thread the needle finds its way',
+    );
     const slicer = createFromBuffer(buf);
     const outBuf = Buffer.alloc(1024);
 
     await new Promise<void>((resolve, reject) => {
-      slicer.read(outBuf, 10, 11, 8, function (err) {
+      slicer.read(outBuf, 10, 11, 8, err => {
         if (err) return reject(err);
 
         try {
@@ -409,7 +443,7 @@ describe.sequential('BufferSlicer', () => {
           reject(e);
         }
 
-        slicer.write(Buffer.from('derp'), 0, 4, 7, (err2) => {
+        slicer.write(Buffer.from('derp'), 0, 4, 7, err2 => {
           if (err2) return reject(err2);
 
           try {
@@ -436,7 +470,7 @@ describe.sequential('BufferSlicer', () => {
     inStream.pipe(sink);
 
     await new Promise<void>((resolve, reject) => {
-      sink.on('finish', function () {
+      sink.on('finish', () => {
         try {
           assert.strictEqual(sink.toString(), str);
           inStream.destroy();
@@ -476,7 +510,10 @@ describe.sequential('BufferSlicer', () => {
     await new Promise<void>((resolve, reject) => {
       outStream.on('finish', () => {
         try {
-          assert.strictEqual(buf.toString('utf8', 0, 'hi!\nit warked\n'.length), 'hi!\nit warked\n');
+          assert.strictEqual(
+            buf.toString('utf8', 0, 'hi!\nit warked\n'.length),
+            'hi!\nit warked\n',
+          );
           outStream.destroy();
           resolve();
         } catch (e) {
