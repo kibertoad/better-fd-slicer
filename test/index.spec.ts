@@ -259,9 +259,14 @@ describe.sequential('FdSlicer', () => {
 
     const slicer = createFromFd(fd, { autoClose: true });
 
-    assert.throws(() => {
-      slicer.unref();
-    }, /invalid unref/);
+    assert.throws(
+      () => {
+        slicer.unref();
+      },
+      {
+        code: 'EINVALIDUNREF',
+      },
+    );
 
     fs.closeSync(fd);
   });
@@ -421,9 +426,14 @@ describe.sequential('BufferSlicer', () => {
     slicer.ref();
     slicer.unref();
 
-    assert.throws(() => {
-      slicer.unref();
-    }, /invalid unref/);
+    assert.throws(
+      () => {
+        slicer.unref();
+      },
+      {
+        code: 'EINVALIDUNREF',
+      },
+    );
   });
 
   it('read and write', async () => {

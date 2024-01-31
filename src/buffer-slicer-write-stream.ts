@@ -2,11 +2,36 @@ import { Writable, type WritableOptions } from 'node:stream';
 import { BufferSlicer } from './buffer-slicer';
 import { ETOOBigError } from './errors';
 
+/**
+ * Options to create {@link BufferSlicerWriteStream}.
+ *
+ * For more details, see {@link https://nodejs.org/api/stream.html#new-streamwritableoptions stream.Writable}.
+ */
 export interface BufferSlicerWriteStreamOptions extends WritableOptions {
+  /**
+   * The offset into the file to start writing to.
+   *
+   * @default 0
+   */
   start?: number;
+
+  /**
+   * Exclusive upper bound offset into the file.
+   *
+   * If this offset is reached, the write stream will emit an 'error' event and stop functioning.
+   *
+   * In this situation, err.code === 'ETOOBIG'.
+   *
+   * @default Infinity
+   */
   end?: number;
 }
 
+/**
+ * Represents a writable stream of a buffer.
+ *
+ * For each chunk written, the stream will emit a 'progress' event.
+ */
 export class BufferSlicerWriteStream extends Writable {
   bufferSlicer: BufferSlicer;
   start: number;
@@ -19,7 +44,6 @@ export class BufferSlicerWriteStream extends Writable {
     options?: BufferSlicerWriteStreamOptions,
   ) {
     options = options || {};
-    options.autoDestroy = true;
 
     super(options);
 

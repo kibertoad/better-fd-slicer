@@ -3,21 +3,63 @@ import { Writable, type WritableOptions } from 'node:stream';
 import { ETOOBigError } from './errors';
 import { FdSlicer } from './fd-slicer';
 
+/**
+ * Options to create {@link WriteStream}.
+ *
+ * For more details, see {@link https://nodejs.org/api/stream.html#new-streamwritableoptions stream.Writable}.
+ */
 export interface WriteStreamOptions extends WritableOptions {
+  /**
+   * The offset into the file to start writing to.
+   *
+   * @default 0
+   */
   start?: number;
+
+  /**
+   * Exclusive upper bound offset into the file.
+   *
+   * If this offset is reached, the write stream will emit an 'error' event and stop functioning.
+   *
+   * In this situation, err.code === 'ETOOBIG'.
+   *
+   * @default Infinity
+   */
   end?: number;
 }
 
+/**
+ * Represents a writable stream used to write to a file descriptor.
+ *
+ * For each chunk written, the stream will emit a 'progress' event.
+ */
 export class WriteStream extends Writable {
-  context: FdSlicer;
-  start: number;
-  endOffset: number;
-  bytesWritten: number;
-  pos: number;
+  /**
+   * See more {@link WriteStreamOptions.start}.
+   */
+  public readonly start: number;
+
+  /**
+   * See more {@link WriteStreamOptions.end}.
+   */
+  public readonly endOffset: number;
+
+  /**
+   * The number of bytes written so far.
+   */
+  public bytesWritten: number;
+
+  /**
+   * The current position of the stream in the file descriptor.
+   *
+   * Defaults to {@link WriteStream.start}.
+   */
+  public pos: number;
+
+  protected readonly context: FdSlicer;
 
   constructor(context: FdSlicer, options?: WriteStreamOptions) {
     options = options || {};
-    options.autoDestroy = true;
     super(options);
 
     this.context = context;
@@ -29,6 +71,9 @@ export class WriteStream extends Writable {
     this.pos = this.start;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public override _write(
     buffer: Buffer,
     _encoding: BufferEncoding,
@@ -67,6 +112,9 @@ export class WriteStream extends Writable {
     });
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public override _destroy(
     err: Error | null,
     callback: (error: Error | null) => void,

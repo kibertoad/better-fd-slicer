@@ -2,20 +2,48 @@ import fs from 'node:fs';
 import { Readable, type ReadableOptions } from 'node:stream';
 import { FdSlicer } from './fd-slicer';
 
+/**
+ * Options to create {@link ReadStream}.
+ *
+ * For more details, see {@link https://nodejs.org/api/stream.html#new-streamreadableoptions stream.Readable}.
+ */
 export interface ReadStreamOptions extends ReadableOptions {
+  /**
+   * The offset into the file to start reading from.
+   *
+   * @default 0
+   */
   start?: number;
+
+  /**
+   * Exclusive upper bound offset into the file to stop reading from.
+   */
   end?: number;
 }
 
+/**
+ * Represents a readable stream of a file descriptor.
+ */
 export class ReadStream extends Readable {
-  context: FdSlicer;
-  start: number;
-  endOffset?: number;
-  pos: number;
+  /**
+   * See more {@link ReadStreamOptions.start}.
+   */
+  public readonly start: number;
+  /**
+   * See more {@link ReadStreamOptions.end}.
+   */
+  public readonly endOffset?: number;
+  /**
+   * The current position of the stream in the file descriptor.
+   *
+   * Defaults to {@link ReadStream.start}.
+   */
+  public pos: number;
+
+  protected readonly context: FdSlicer;
 
   constructor(context: FdSlicer, options?: ReadStreamOptions) {
     options = options || {};
-    options.autoDestroy = true;
 
     super(options);
 
@@ -27,6 +55,9 @@ export class ReadStream extends Readable {
     this.pos = this.start;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public override _read(n: number) {
     if (this.destroyed) return;
 
@@ -69,6 +100,9 @@ export class ReadStream extends Readable {
     });
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public override _destroy(
     err: Error | null,
     callback: (error: Error | null) => void,

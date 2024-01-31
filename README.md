@@ -1,7 +1,5 @@
 # better-fd-slicer
 
-[![Build Status](https://travis-ci.org/andrewrk/node-fd-slicer.svg?branch=master)](https://travis-ci.org/andrewrk/node-fd-slicer)
-
 Safe `fs.ReadStream` and `fs.WriteStream` using the same fd.
 
 Let's say that you want to perform a parallel upload of a file to a remote
@@ -44,16 +42,16 @@ This module also gives you some additional power that the builtin
 ## Usage
 
 ```js
-var fdSlicer = require('fd-slicer');
-var fs = require('fs');
+import {createFromFd} from 'better-fd-slicer';
+import fs from 'node:fs';
 
 fs.open("file.txt", 'r', function (err, fd) {
     if (err) throw err;
-    var slicer = fdSlicer.createFromFd(fd);
-    var firstPart = slicer.createReadStream({start: 0, end: 100});
-    var secondPart = slicer.createReadStream({start: 100});
-    var firstOut = fs.createWriteStream("first.txt");
-    var secondOut = fs.createWriteStream("second.txt");
+    const slicer = createFromFd(fd);
+    const firstPart = slicer.createReadStream({start: 0, end: 100});
+    const secondPart = slicer.createReadStream({start: 100});
+    const firstOut = fs.createWriteStream("first.txt");
+    const secondOut = fs.createWriteStream("second.txt");
     firstPart.pipe(firstOut);
     secondPart.pipe(secondOut);
 });
@@ -62,12 +60,15 @@ fs.open("file.txt", 'r', function (err, fd) {
 You can also create from a buffer:
 
 ```js
-var fdSlicer = require('fd-slicer');
-var slicer = FdSlicer.createFromBuffer(someBuffer);
-var firstPart = slicer.createReadStream({start: 0, end: 100});
-var secondPart = slicer.createReadStream({start: 100});
-var firstOut = fs.createWriteStream("first.txt");
-var secondOut = fs.createWriteStream("second.txt");
+import {createFromBuffer} from 'better-fd-slicer';
+import fs from 'node:fs';
+
+const slicer = createFromBuffer(someBuffer);
+const firstPart = slicer.createReadStream({start: 0, end: 100});
+const secondPart = slicer.createReadStream({start: 100});
+const firstOut = fs.createWriteStream("first.txt");
+const secondOut = fs.createWriteStream("second.txt");
+
 firstPart.pipe(firstOut);
 secondPart.pipe(secondOut);
 ```
@@ -77,10 +78,11 @@ secondPart.pipe(secondOut);
 ### fdSlicer.createFromFd(fd, [options])
 
 ```js
-var fdSlicer = require('fd-slicer');
+import {createFromFd} from 'better-fd-slicer';
+
 fs.open("file.txt", 'r', function (err, fd) {
     if (err) throw err;
-    var slicer = fdSlicer.createFromFd(fd);
+    const slicer = createFromFd(fd);
     // ...
 });
 ```
@@ -99,8 +101,8 @@ to use `createWriteStream` make sure you open it for writing.
 ### fdSlicer.createFromBuffer(buffer, [options])
 
 ```js
-var fdSlicer = require('fd-slicer');
-var slicer = fdSlicer.createFromBuffer(someBuffer);
+import {createFromBuffer} from 'better-fd-slicer';
+const slicer = createFromBuffer(someBuffer);
 // ...
 ```
 
@@ -195,7 +197,7 @@ Emitted if `fs.close` returns an error when auto closing.
 
 ##### 'close'
 
-Emitted when fd-slicer closes the file descriptor due to `autoClose`. Never
+Emitted when FdSlicer closes the file descriptor due to `autoClose`. Never
 emitted if created from a buffer.
 
 ## Credits

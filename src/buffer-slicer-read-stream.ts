@@ -2,22 +2,49 @@ import { PassThrough } from 'node:stream';
 import type { TransformOptions } from 'stream';
 import { BufferSlicer } from './buffer-slicer';
 
+/**
+ * Options to create {@link BufferSlicerReadStream}.
+ *
+ * For more details, see {@link https://nodejs.org/api/stream.html#new-streamwritableoptions stream.Writable} and {@link https://nodejs.org/api/stream.html#new-streamreadableoptions stream.Readable}.
+ */
 export interface BufferSlicerCreateReadOptions extends TransformOptions {
+  /**
+   * The offset into the file to start reading from.
+   *
+   * @default 0
+   */
   start?: number;
+
+  /**
+   * Exclusive upper bound offset into the file to stop reading from.
+   */
   end?: number;
 }
 
+/**
+ * Represents a readable stream of a buffer.
+ */
 export class BufferSlicerReadStream extends PassThrough {
-  start: number;
-  endOffset?: number;
-  pos: number;
+  /**
+   * See more {@link BufferSlicerCreateReadOptions.start}.
+   */
+  public readonly start: number;
+  /**
+   * See more {@link BufferSlicerCreateReadOptions.end}.
+   */
+  public readonly endOffset?: number;
+  /**
+   * Exclusive upper bound offset into the file to stop reading from.
+   *
+   * Defaults to {@link BufferSlicer.buffer} length.
+   */
+  public readonly pos: number;
 
   constructor(
     bufferSlicer: BufferSlicer,
     options?: BufferSlicerCreateReadOptions,
   ) {
     options = options || {};
-    options.autoDestroy = true;
 
     super(options);
 
