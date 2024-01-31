@@ -6,11 +6,13 @@ export default defineConfig({
     target: 'es2022',
   },
   test: {
+    root: './',
     maxConcurrency: 1,
     watch: false,
     coverage: {
       provider: 'v8',
-      include: ['index.ts'],
+      clean: true,
+      include: ['src/**'],
     },
   },
 });

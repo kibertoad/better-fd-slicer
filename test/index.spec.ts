@@ -6,7 +6,7 @@ import Pend from 'pend';
 import streamEqual from 'stream-equal';
 import StreamSink from 'streamsink';
 import { beforeAll, beforeEach, describe, it } from 'vitest';
-import { ETOOBigError, createFromBuffer, createFromFd } from '../';
+import { ETOOBigError, createFromBuffer, createFromFd } from '../src';
 
 const testBlobFile = path.join(__dirname, 'test-blob.bin');
 const testBlobFileSize = 20 * 1024 * 1024;
