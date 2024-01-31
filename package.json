@@ -25,6 +25,7 @@
   ],
   "scripts": {
     "test": "vitest --coverage",
+    "lint": "biome check --apply .",
     "build": "tsup"
   },
   "author": "Andrew Kelley <superjoe30@gmail.com>",
@@ -40,8 +41,10 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@biomejs/biome": "1.5.3",
     "@types/node": "20.11.5",
     "@vitest/coverage-v8": "1.2.2",
+    "lefthook": "1.6.1",
     "stream-equal": "2.0.1",
     "streamsink": "1.2.0",
     "tsup": "8.0.1",
