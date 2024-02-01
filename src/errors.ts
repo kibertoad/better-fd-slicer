@@ -23,3 +23,16 @@ export class EInvalidUnref extends Error {
     this.code = 'EINVALIDUNREF';
   }
 }
+
+/**
+ * When the callback is called twice.
+ */
+export class EReleasedTwice extends Error {
+  code: string;
+
+  constructor() {
+    super('release callback called twice');
+
+    this.code = 'ERELEASEDTWICE';
+  }
+}

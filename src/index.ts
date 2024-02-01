@@ -4,5 +4,6 @@ export * from './buffer-slicer-write-stream';
 export * from './create';
 export * from './errors';
 export * from './fd-slicer';
+export * from './lock';
 export * from './read-stream';
 export * from './write-stream';

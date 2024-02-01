@@ -87,7 +87,7 @@ export class WriteStream extends Writable {
       return;
     }
 
-    this.context.pend.go(cb => {
+    this.context.pend.acquire(cb => {
       if (this.destroyed) return cb();
       fs.write(
         this.context.fd,

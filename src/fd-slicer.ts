@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import fs from 'node:fs';
-import Pend from 'pend';
 import { EInvalidUnref } from './errors';
+import { Lock } from './lock';
 import { ReadStream, type ReadStreamOptions } from './read-stream';
 import { WriteStream, type WriteStreamOptions } from './write-stream';
 
@@ -41,15 +41,14 @@ export class FdSlicer extends EventEmitter {
   /**
    * The concurrency protection.
    */
-  public readonly pend: Pend;
+  public readonly pend: Lock;
 
   constructor(fd: number, options?: FdSlicerOptions) {
     super();
 
     options = options || {};
     this.fd = fd;
-    this.pend = new Pend();
-    this.pend.max = 1;
+    this.pend = new Lock(1);
     this.refCount = 0;
     this.autoClose = !!options.autoClose;
   }
@@ -72,7 +71,7 @@ export class FdSlicer extends EventEmitter {
     position: number,
     callback: (error: Error | null, bytesRead: number, buffer: Buffer) => void,
   ) {
-    this.pend.go(cb => {
+    this.pend.acquire(cb => {
       fs.read(
         this.fd,
         buffer,
@@ -109,7 +108,7 @@ export class FdSlicer extends EventEmitter {
       buffer: Buffer,
     ) => void,
   ) {
-    this.pend.go(cb => {
+    this.pend.acquire(cb => {
       fs.write(
         this.fd,
         buffer,

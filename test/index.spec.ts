@@ -2,11 +2,11 @@ import assert from 'assert';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import Pend from 'pend';
 import streamEqual from 'stream-equal';
 import StreamSink from 'streamsink';
 import { beforeAll, beforeEach, describe, it } from 'vitest';
 import { ETOOBigError, createFromBuffer, createFromFd } from '../src';
+import { Lock } from '../src/lock';
 
 const testBlobFile = path.join(__dirname, 'test-blob.bin');
 const testBlobFileSize = 20 * 1024 * 1024;
@@ -45,13 +45,13 @@ describe.sequential('FdSlicer', () => {
     const expectedStream = fs.createReadStream(testBlobFile);
 
     await new Promise<void>((resolve, reject) => {
-      const pend = new Pend();
+      const lock = new Lock();
 
-      pend.go(cb => {
+      lock.acquire(cb => {
         slicer.on('close', cb);
       });
 
-      pend.go(cb => {
+      lock.acquire(cb => {
         streamEqual(expectedStream, actualStream)
           .then(equal => {
             assert.ok(equal);
@@ -61,7 +61,7 @@ describe.sequential('FdSlicer', () => {
           .catch(reject);
       });
 
-      pend.wait(resolve);
+      lock.wait(() => resolve());
     });
   });
 
@@ -104,8 +104,8 @@ describe.sequential('FdSlicer', () => {
     });
 
     await new Promise<void>((resolve, reject) => {
-      const pend = new Pend();
-      pend.go(cb => {
+      const lock = new Lock();
+      lock.acquire(cb => {
         streamEqual(expectedPart1, actualPart1)
           .then(equal => {
             assert.ok(equal);
@@ -113,7 +113,7 @@ describe.sequential('FdSlicer', () => {
           })
           .catch(reject);
       });
-      pend.go(cb => {
+      lock.acquire(cb => {
         streamEqual(expectedPart2, actualPart2)
           .then(equal => {
             assert.ok(equal);
@@ -121,7 +121,7 @@ describe.sequential('FdSlicer', () => {
           })
           .catch(reject);
       });
-      pend.go(cb => {
+      lock.acquire(cb => {
         streamEqual(expectedPart3, actualPart3)
           .then(equal => {
             assert.ok(equal);
@@ -129,7 +129,7 @@ describe.sequential('FdSlicer', () => {
           })
           .catch(reject);
       });
-      pend.go(cb => {
+      lock.acquire(cb => {
         streamEqual(expectedPart4, actualPart4)
           .then(equal => {
             assert.ok(equal);
@@ -137,7 +137,7 @@ describe.sequential('FdSlicer', () => {
           })
           .catch(reject);
       });
-      pend.wait(err => {
+      lock.wait(err => {
         if (err) return reject(err);
 
         try {
@@ -210,17 +210,17 @@ describe.sequential('FdSlicer', () => {
       end: (testBlobFileSize * 4) / 4,
     });
 
-    const pend = new Pend();
-    pend.go(cb => {
+    const lock = new Lock();
+    lock.acquire(cb => {
       actualPart1.on('finish', cb);
     });
-    pend.go(cb => {
+    lock.acquire(cb => {
       actualPart2.on('finish', cb);
     });
-    pend.go(cb => {
+    lock.acquire(cb => {
       actualPart3.on('finish', cb);
     });
-    pend.go(cb => {
+    lock.acquire(cb => {
       actualPart4.on('finish', cb);
     });
 
@@ -230,7 +230,7 @@ describe.sequential('FdSlicer', () => {
     in4.pipe(actualPart4);
 
     await new Promise<void>((resolve, reject) => {
-      pend.wait(() => {
+      lock.wait(() => {
         try {
           fs.closeSync(fd);
         } catch (e) {

@@ -52,9 +52,6 @@
     "vite": "5.0.12",
     "vitest": "1.2.2"
   },
-  "dependencies": {
-    "pend": "1.2.0"
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/kibertoad/better-fd-slicer"
