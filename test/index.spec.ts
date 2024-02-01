@@ -21,7 +21,7 @@ describe.sequential('FdSlicer', () => {
     }
 
     out.end();
-    await new Promise(r => out.on('close', r));
+    await new Promise((r) => out.on('close', r));
 
     return () => {
       try {
@@ -47,13 +47,13 @@ describe.sequential('FdSlicer', () => {
     await new Promise<void>((resolve, reject) => {
       const lock = new Lock();
 
-      lock.acquire(cb => {
+      lock.acquire((cb) => {
         slicer.on('close', cb);
       });
 
-      lock.acquire(cb => {
+      lock.acquire((cb) => {
         streamEqual(expectedStream, actualStream)
-          .then(equal => {
+          .then((equal) => {
             assert.ok(equal);
 
             cb();
@@ -105,39 +105,39 @@ describe.sequential('FdSlicer', () => {
 
     await new Promise<void>((resolve, reject) => {
       const lock = new Lock();
-      lock.acquire(cb => {
+      lock.acquire((cb) => {
         streamEqual(expectedPart1, actualPart1)
-          .then(equal => {
+          .then((equal) => {
             assert.ok(equal);
             cb();
           })
           .catch(reject);
       });
-      lock.acquire(cb => {
+      lock.acquire((cb) => {
         streamEqual(expectedPart2, actualPart2)
-          .then(equal => {
+          .then((equal) => {
             assert.ok(equal);
             cb();
           })
           .catch(reject);
       });
-      lock.acquire(cb => {
+      lock.acquire((cb) => {
         streamEqual(expectedPart3, actualPart3)
-          .then(equal => {
+          .then((equal) => {
             assert.ok(equal);
             cb();
           })
           .catch(reject);
       });
-      lock.acquire(cb => {
+      lock.acquire((cb) => {
         streamEqual(expectedPart4, actualPart4)
-          .then(equal => {
+          .then((equal) => {
             assert.ok(equal);
             cb();
           })
           .catch(reject);
       });
-      lock.wait(err => {
+      lock.wait((err) => {
         if (err) return reject(err);
 
         try {
@@ -162,7 +162,7 @@ describe.sequential('FdSlicer', () => {
         const actual = fs.createReadStream(testOutBlobFile);
 
         streamEqual(expected, actual)
-          .then(equal => {
+          .then((equal) => {
             try {
               assert.ok(equal);
 
@@ -211,16 +211,16 @@ describe.sequential('FdSlicer', () => {
     });
 
     const lock = new Lock();
-    lock.acquire(cb => {
+    lock.acquire((cb) => {
       actualPart1.on('finish', cb);
     });
-    lock.acquire(cb => {
+    lock.acquire((cb) => {
       actualPart2.on('finish', cb);
     });
-    lock.acquire(cb => {
+    lock.acquire((cb) => {
       actualPart3.on('finish', cb);
     });
-    lock.acquire(cb => {
+    lock.acquire((cb) => {
       actualPart4.on('finish', cb);
     });
 
@@ -241,7 +241,7 @@ describe.sequential('FdSlicer', () => {
         const actual = fs.createReadStream(testOutBlobFile);
 
         streamEqual(expected, actual)
-          .then(equal => {
+          .then((equal) => {
             try {
               assert.ok(equal);
               resolve();
@@ -296,7 +296,7 @@ describe.sequential('FdSlicer', () => {
     const slicer = createFromFd(fd, { autoClose: true });
     const ws = slicer.createWriteStream({ end: 1000 });
 
-    await new Promise<void>(resolve => {
+    await new Promise<void>((resolve) => {
       slicer.on('close', resolve);
       ws.end(Buffer.alloc(1000));
     });
@@ -357,7 +357,7 @@ describe.sequential('FdSlicer', () => {
   it('write stream unrefs when destroyed', async () => {
     const fd = fs.openSync(testOutBlobFile, 'w');
 
-    await new Promise<void>(resolve => {
+    await new Promise<void>((resolve) => {
       const slicer = createFromFd(fd, { autoClose: true });
       const ws = slicer.createWriteStream();
 
@@ -373,7 +373,7 @@ describe.sequential('FdSlicer', () => {
     const slicer = createFromFd(fd, { autoClose: true });
     const rs = slicer.createReadStream();
 
-    await new Promise<void>(resolve => {
+    await new Promise<void>((resolve) => {
       slicer.on('close', resolve);
       rs.destroy();
     });
@@ -409,7 +409,7 @@ describe.sequential('FdSlicer', () => {
     const slicer = createFromFd(fd);
 
     await new Promise<void>((resolve, reject) => {
-      slicer.write(Buffer.from('blah\n'), 0, 5, 0, e => {
+      slicer.write(Buffer.from('blah\n'), 0, 5, 0, (e) => {
         if (e) return reject(e);
 
         fs.closeSync(fd);
@@ -444,7 +444,7 @@ describe.sequential('BufferSlicer', () => {
     const outBuf = Buffer.alloc(1024);
 
     await new Promise<void>((resolve, reject) => {
-      slicer.read(outBuf, 10, 11, 8, err => {
+      slicer.read(outBuf, 10, 11, 8, (err) => {
         if (err) return reject(err);
 
         try {
@@ -453,7 +453,7 @@ describe.sequential('BufferSlicer', () => {
           reject(e);
         }
 
-        slicer.write(Buffer.from('derp'), 0, 4, 7, err2 => {
+        slicer.write(Buffer.from('derp'), 0, 4, 7, (err2) => {
           if (err2) return reject(err2);
 
           try {

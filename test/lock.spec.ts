@@ -9,7 +9,7 @@ describe('lock', () => {
     expect(lock.pending).toBe(0);
 
     await new Promise<void>((resolve, reject) => {
-      lock.acquire(release => {
+      lock.acquire((release) => {
         try {
           expect(lock.pending).toBe(1);
 
@@ -29,13 +29,13 @@ describe('lock', () => {
     const lock = new Lock(1);
     const results: number[] = [];
 
-    await new Promise<void>(resolve => {
-      lock.acquire(release => {
+    await new Promise<void>((resolve) => {
+      lock.acquire((release) => {
         results.push(1);
         setTimeout(release, 20);
       });
 
-      lock.acquire(release => {
+      lock.acquire((release) => {
         results.push(2);
         release();
         resolve();
@@ -50,13 +50,13 @@ describe('lock', () => {
     const lock = new Lock();
     const results: number[] = [];
 
-    await new Promise<void>(resolve => {
-      lock.acquire(release => {
+    await new Promise<void>((resolve) => {
+      lock.acquire((release) => {
         results.push(1);
         setTimeout(release, 20);
       });
 
-      lock.acquire(release => {
+      lock.acquire((release) => {
         results.push(2);
         release();
       });
@@ -74,8 +74,8 @@ describe('lock', () => {
   it('should be able to lock and release with error', async () => {
     const lock = new Lock();
 
-    await new Promise<void>(resolve => {
-      lock.acquire(release => {
+    await new Promise<void>((resolve) => {
+      lock.acquire((release) => {
         release(new Error('bla'));
         resolve();
       });
@@ -89,11 +89,11 @@ describe('lock', () => {
     const lock = new Lock();
 
     await new Promise<void>((resolve, reject) => {
-      lock.acquire(release => {
+      lock.acquire((release) => {
         setTimeout(() => release(new Error('bla')), 20);
       });
 
-      lock.wait(err => {
+      lock.wait((err) => {
         try {
           expect(err?.message).toBe('bla');
           resolve();
@@ -109,15 +109,15 @@ describe('lock', () => {
   it('release error should store the first error only', async () => {
     const lock = new Lock();
 
-    await new Promise<void>(resolve => {
-      lock.acquire(release => {
+    await new Promise<void>((resolve) => {
+      lock.acquire((release) => {
         release(new Error('bla'));
         resolve();
       });
     });
 
-    await new Promise<void>(resolve => {
-      lock.acquire(release => {
+    await new Promise<void>((resolve) => {
+      lock.acquire((release) => {
         release(new Error('buu'));
         resolve();
       });
@@ -131,7 +131,7 @@ describe('lock', () => {
     const lock = new Lock();
 
     await new Promise<void>((resolve, reject) => {
-      lock.acquire(release => {
+      lock.acquire((release) => {
         try {
           release();
           release();

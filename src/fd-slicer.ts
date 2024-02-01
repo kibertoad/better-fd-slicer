@@ -71,7 +71,7 @@ export class FdSlicer extends EventEmitter {
     position: number,
     callback: (error: Error | null, bytesRead: number, buffer: Buffer) => void,
   ) {
-    this.pend.acquire(cb => {
+    this.pend.acquire((cb) => {
       fs.read(
         this.fd,
         buffer,
@@ -108,7 +108,7 @@ export class FdSlicer extends EventEmitter {
       buffer: Buffer,
     ) => void,
   ) {
-    this.pend.acquire(cb => {
+    this.pend.acquire((cb) => {
       fs.write(
         this.fd,
         buffer,
@@ -162,7 +162,7 @@ export class FdSlicer extends EventEmitter {
     if (this.refCount < 0) throw new EInvalidUnref();
 
     if (this.autoClose) {
-      fs.close(this.fd, err => {
+      fs.close(this.fd, (err) => {
         if (err) {
           this.emit('error', err);
         } else {

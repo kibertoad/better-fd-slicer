@@ -73,7 +73,7 @@ export class ReadStream extends Readable {
       return;
     }
 
-    this.context.pend.acquire(cb => {
+    this.context.pend.acquire((cb) => {
       if (this.destroyed) return cb();
 
       const buffer = Buffer.alloc(toRead);

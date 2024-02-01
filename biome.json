@@ -29,7 +29,7 @@
       "semicolons": "always",
       "trailingComma": "all",
       "bracketSpacing": true,
-      "arrowParentheses": "asNeeded"
+      "arrowParentheses": "always"
     }
   }
 }
