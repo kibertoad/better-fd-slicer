@@ -30,13 +30,23 @@ jobs:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install Deps
-        run: npm ci
+      - name: Update NPM Version
+        run: npm i -g npm
+        if: ${{ steps.release.outputs.release_created }}
+
+      - name: Install Lib Dependencies
+        run: npm i
         if: ${{ steps.release.outputs.release_created }}
 
       - name: Build
         run: npm run build
         if: ${{ steps.release.outputs.release_created }}
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run Publint
+        run: npx publint
 
       - name: NPM Publish
         run: npm publish --provenance --access public

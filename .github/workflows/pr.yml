@@ -23,16 +23,8 @@ jobs:
       - name: Update NPM Version
         run: npm i -g npm
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ matrix.node-version }}-
-
       - name: Install Lib Dependencies
-        run: npm ci
+        run: npm i
 
       - name: Build
         run: npm run build
