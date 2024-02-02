@@ -1,7 +1,7 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "outDir": "./lib",
+    "outDir": "./dist",
     "target": "ES2022",
     "module": "ES2022",
     "moduleResolution": "Bundler",
@@ -35,7 +35,7 @@
   },
   "reflection": true,
   "include": [
-    "index.ts",
+    "./src/**/*.ts",
     "./test/**/*.ts"
   ]
 }

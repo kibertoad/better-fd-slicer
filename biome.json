@@ -4,7 +4,7 @@
     "enabled": true
   },
   "files": {
-    "include": ["./index.ts", "./test/**/*.ts"]
+    "include": ["./src/**/*.ts", "./test/**/*.ts"]
   },
   "linter": {
     "enabled": true,
@@ -29,7 +29,7 @@
       "semicolons": "always",
       "trailingComma": "all",
       "bracketSpacing": true,
-      "arrowParentheses": "asNeeded"
+      "arrowParentheses": "always"
     }
   }
 }
