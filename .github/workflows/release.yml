@@ -44,6 +44,7 @@ jobs:
 
       - name: Run tests
         run: npm test
+        if: ${{ steps.release.outputs.release_created }}
 
       - name: Run Publint
         run: npx publint
