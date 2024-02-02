@@ -48,6 +48,7 @@ jobs:
 
       - name: Run Publint
         run: npx publint
+        if: ${{ steps.release.outputs.release_created }}
 
 # Comment out the NPM publish workflow until we set it up
 #      - name: NPM Publish
