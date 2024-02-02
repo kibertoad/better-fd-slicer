@@ -48,8 +48,9 @@ jobs:
       - name: Run Publint
         run: npx publint
 
-      - name: NPM Publish
-        run: npm publish --provenance --access public
-        if: ${{ steps.release.outputs.release_created }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+# Comment out the NPM publish workflow until we set it up
+#      - name: NPM Publish
+#        run: npm publish --provenance --access public
+#        if: ${{ steps.release.outputs.release_created }}
+#        env:
+#          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
